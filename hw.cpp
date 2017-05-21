@@ -1,14 +1,56 @@
-#include <iostream>
-#include <GL\glew.h>
-#include <GLFW\glfw3.h>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include <SOIL.h>
+#include <iostream>
+#include <vector>
 #include <glm.hpp>
+#include "gtc/matrix_transform.hpp"
+#include <gtx/transform.hpp>
+#include <gtc/type_ptr.hpp>
 
 #include "shaderManager.h"
+#include "MeshFactory.h"
+#include "Model.h"
+#include "Renderer.h"
+#include "Scene.h"
+#include "Camera.h"
 
 using namespace std;
 
+const GLuint WIDTH = 800, HEIGHT = 600;
+GLFWwindow* init();
+
 int main(){
+	GLFWwindow* window = init();
+	Renderer renderer;
+	std::shared_ptr<Scene> mainScene = std::make_shared<Scene>();
+	std::shared_ptr<Camera> camera = std::make_shared<Camera>(glm::vec3(4, 3, 3), glm::vec3(0, 0, 0));
+
+	// test models
+	std::shared_ptr<Model> testmodel = std::make_shared<Model>(MeshFactory::createCube(1, 4, 1));
+	std::shared_ptr<Model> testmodel2 = std::make_shared<Model>(MeshFactory::createCube(1, 1, 1));
+	std::shared_ptr<Model> testmodel3 = std::make_shared<Model>(MeshFactory::createCube(1, 1, 1));
+	testmodel2->setPosition(glm::vec3(0, -1.5, 1));
+	testmodel3->setPosition(glm::vec3(0, -1.5, -1));
+
+	mainScene->addModel(testmodel);
+	mainScene->addModel(testmodel2);
+	mainScene->addModel(testmodel3);
+
+	while (!glfwWindowShouldClose(window))
+	{
+		glfwPollEvents();
+
+		renderer.renderScene(camera, mainScene); 
+		
+		glfwSwapBuffers(window);
+	}
+
+	glfwTerminate();
+	return 0;
+}
+
+GLFWwindow* init(){
 
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -16,94 +58,20 @@ int main(){
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-	GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(1024, 800, "LearnOpenGL", nullptr, nullptr);
 	if (window == nullptr)
 	{
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
-		return -1;
+		throw "Failed to create GLFW window";
 	}
 	glfwMakeContextCurrent(window);
 
 	glewExperimental = GL_TRUE;
 	if (glewInit() != GLEW_OK)
 	{
-		std::cout << "Failed to initialize GLEW" << std::endl;
-		return -1;
+		throw "Failed to initialize GLEW";
 	}
 
-	int width, height;
-	glfwGetFramebufferSize(window, &width, &height);
+	glEnable(GL_DEPTH_TEST);
 
-	glViewport(0, 0, width, height);
-
-	// verts
-
-	GLfloat vertices[] = {
-		-0.5f, -0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		0.0f, 0.5f, 0.0f
-	};
-
-	// VBO
-
-	GLuint VBO;
-	glGenBuffers(1, &VBO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	// shaders
-
-	ShaderManager theProgram("main.vert", "main.frag");
-
-	//
-
-	// 0. Copy our vertices array in a buffer for OpenGL to use
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	// 1. Then set the vertex attributes pointers
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-	// 2. Use our shader program when we want to render an object
-	theProgram.Use();
-	// 3. Now draw the object 
-
-	GLuint VAO;
-	glGenVertexArrays(1, &VAO);
-
-	// ..:: Initialization code (done once (unless your object frequently changes)) :: ..
-	// 1. Bind Vertex Array Object
-	glBindVertexArray(VAO);
-	// 2. Copy our vertices array in a buffer for OpenGL to use
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	// 3. Then set our vertex attributes pointers
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-	//4. Unbind the VAO
-	glBindVertexArray(0);
-
-
-
-
-	while (!glfwWindowShouldClose(window))
-	{
-		glfwPollEvents();
-
-
-		// actual drawing
-
-		theProgram.Use();
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		glBindVertexArray(0);
-
-
-		glfwSwapBuffers(window);
-	}
-
-	glfwTerminate();
-	return 0;
+	return window;
 }

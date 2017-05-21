@@ -2,10 +2,10 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-using namespace std;
 
-#include <GL/glew.h>
 #include "shaderManager.h"
+
+using namespace std;
 
 string read_shader_code(const GLchar* shaderPath)
 {

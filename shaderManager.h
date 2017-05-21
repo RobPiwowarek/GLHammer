@@ -1,4 +1,7 @@
-#pragma once
+#ifndef SHADERMANAGER
+#define SHADERMANAGER
+
+#include <GL/glew.h>
 
 class ShaderManager
 {
@@ -19,3 +22,5 @@ public:
 		return program_id;
 	}
 };
+
+#endif
