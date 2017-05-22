@@ -3,8 +3,7 @@
 #include <sstream>
 #include <algorithm>
 #include "Mesh.h"
-#include <glm.hpp>
-#include "gtc/matrix_transform.hpp"
+#include <glm/gtc/matrix_transform.hpp>
 
 Mesh::Mesh(std::vector<Vertex>&& vertices, std::vector<GLuint>&& indices) : mVertices(vertices), mIndices(indices) {
     glGenVertexArrays(1, &mVAO);

@@ -5,9 +5,9 @@
 #include <string>
 #include <memory>
 #include <GL/glew.h>
-#include <vec2.hpp>
-#include <vec3.hpp>
-#include <glm.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/glm.hpp>
 
 struct Vertex {
     glm::vec3 position;

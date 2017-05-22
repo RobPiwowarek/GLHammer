@@ -6,7 +6,7 @@
 #include "Model.h"
 #include "Scene.h"
 #include "GL\glew.h"
-#include <gtc\type_ptr.hpp>
+#include <glm/gtc\type_ptr.hpp>
 
 class Renderer{
 
@@ -18,6 +18,8 @@ public:
 
 private:
     GLuint mMainShaderProgram;
+
+	GLint mSamplerUniform;
 
 	GLint mProjectionUniform;
 	GLint mViewUniform;

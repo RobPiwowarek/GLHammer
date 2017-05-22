@@ -2,9 +2,9 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
-#include <gtc/constants.hpp>
+#include <glm/gtc/constants.hpp>
 #include <cmath>
-#include <geometric.hpp>
+#include <glm/geometric.hpp>
 #include "MeshFactory.h"
 
 std::shared_ptr<Mesh> MeshFactory::createPlane(GLfloat w, GLfloat d) {
@@ -53,55 +53,50 @@ std::shared_ptr<Mesh> MeshFactory::createCube(GLfloat w, GLfloat h, GLfloat d) {
     return std::make_shared<Mesh>(std::move(vertices), std::move(indices));
 }
 
-std::shared_ptr<Mesh> MeshFactory::createCylinder(GLfloat r, GLfloat h, GLuint sides) {
+std::shared_ptr<Mesh> MeshFactory::createCylinder(GLfloat radius, GLfloat height, GLuint segments) {
 
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
-	float deltaAngle = glm::two_pi<float>() / sides;
+	float deltaAngle = glm::two_pi<float>() / segments;
 
 	// side indices
-	for (GLuint i = 0; i < sides - 1; ++i) {
-		indices.emplace_back(i);
-		indices.emplace_back(i + 1);
-		indices.emplace_back(sides + i);
+	for (GLuint i = 0; i < segments - 1; ++i) {
+		indices.emplace_back(2 * i);
+		indices.emplace_back(2 * i + 2);
+		indices.emplace_back(2 * i + 1);
 
-		indices.emplace_back(sides + i);
-		indices.emplace_back(sides + i + 1);
-		indices.emplace_back(i + 1);
+		indices.emplace_back(2 * i + 2);
+		indices.emplace_back(2 * i + 3);
+		indices.emplace_back(2 * i + 1);
 	}
+
+	indices.emplace_back(2 * (segments - 1));
+	indices.emplace_back(0);
+	indices.emplace_back(2 * (segments - 1) + 1);
+
+	indices.emplace_back(0);
+	indices.emplace_back(1);
+	indices.emplace_back(2 * (segments - 1) + 1);
 
 	// base indices
-	for (GLuint i = 0; i < sides - 1; ++i) {
+	for (GLuint i = 1; i < segments - 1; ++i) {
 		indices.emplace_back(0);
-		indices.emplace_back(i+1);
-		indices.emplace_back(i+2);
+		indices.emplace_back(2 * (i + 1));
+		indices.emplace_back(2 * i);
 
-		indices.emplace_back(sides+i);
-		indices.emplace_back(sides+i+1);
-		indices.emplace_back(sides+i+2);
+		indices.emplace_back(1);
+		indices.emplace_back(2 * (i + 1) + 1);
+		indices.emplace_back(2 * i + 1);
 	}
 
-	indices.emplace_back(sides);
-	indices.emplace_back(0);
-	indices.emplace_back(2 * sides);
-
-	indices.emplace_back(2 * sides);
-	indices.emplace_back(0);
-	indices.emplace_back(sides+1);
 
 	// vertices
-	for (GLuint i = 0; i < sides; ++i) {
-		float x = r * std::cos(deltaAngle * i);
-		float y = r * std::sin(deltaAngle * i);
+	for (GLuint i = 0; i < segments; ++i) {
+		float x = radius * std::cos(deltaAngle * i);
+		float y = radius * std::sin(deltaAngle * i);
 
-		vertices.emplace_back(glm::vec3(x, y, -h / 2), glm::normalize(glm::vec3(x, y, 0)), glm::vec2((float)i / sides, 0));
-	}
-
-	for (GLuint i = 0; i < sides; ++i) {
-		float x = r * std::cos(deltaAngle * i);
-		float y = r * std::sin(deltaAngle * i);
-
-		vertices.emplace_back(glm::vec3(x, y, h / 2), glm::normalize(glm::vec3(x, y, 0)), glm::vec2((float)i / sides, 1));
+		vertices.emplace_back(glm::vec3(x, y, -height / 2), glm::normalize(glm::vec3(x, y, 0)), glm::vec2((float)i / segments, 0));
+		vertices.emplace_back(glm::vec3(x, y, height / 2), glm::normalize(glm::vec3(x, y, 0)), glm::vec2((float)i / segments, 1));
 	}
 
     return std::make_shared<Mesh>(std::move(vertices), std::move(indices));

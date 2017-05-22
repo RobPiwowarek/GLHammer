@@ -1,13 +1,13 @@
-#include <gtc/type_ptr.hpp>
+#include <glm\gtc\type_ptr.hpp>
 #include <GL/glew.h>
-#include <gtc/matrix_transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "Model.h"
 
-Model::Model(std::shared_ptr<Mesh> mesh) : mMesh(std::move(mesh)) {}
+Model::Model(std::shared_ptr<Mesh> mesh) : mMesh(std::move(mesh)) { this->texture = 0; }
 
-void Model::setTexture(Texture text) {
-	this->texture = text; 
+void Model::setTexture(GLuint text) {
+	this->texture = text;
 }
 
 void Model::setTransform(glm::mat4 transform) {

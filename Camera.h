@@ -1,8 +1,8 @@
 #ifndef CAMERA
 #define CAMERA
 
-#include <detail/type_mat4x4.hpp>
-#include <vec3.hpp>
+#include <glm/detail/type_mat4x4.hpp>
+#include <glm/vec3.hpp>
 
 class Camera {
 public:

@@ -1,7 +1,7 @@
 #ifndef SHADERMANAGER
 #define SHADERMANAGER
 
-#include <GL/glew.h>
+#include <gl\glew.h>
 
 class ShaderManager
 {

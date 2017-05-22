@@ -16,11 +16,11 @@ public:
 
     void recalculateTransform();
 
-	void setTexture(Texture texture);
+	void setTexture(GLuint texture);
 
     std::shared_ptr<Mesh> mMesh;
     
-	Texture texture;
+	GLuint texture;
 	
 	glm::mat4 mTransform;
 

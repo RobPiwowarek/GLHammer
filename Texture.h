@@ -6,6 +6,7 @@
 
 class Texture{
 public:
+
 	Texture(std::string file);
 
 	GLuint getID() { return mTextureID; }

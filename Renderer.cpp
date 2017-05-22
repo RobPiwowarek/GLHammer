@@ -6,6 +6,8 @@ Renderer::Renderer() {
 
 	mMainShaderProgram = theProgram.get_programID();
 
+	mSamplerUniform = glGetUniformLocation(mMainShaderProgram, "ourTexture");
+
 	mProjectionUniform = glGetUniformLocation(mMainShaderProgram, "Projection");
 	mViewUniform = glGetUniformLocation(mMainShaderProgram, "View");
 	mModelUniform = glGetUniformLocation(mMainShaderProgram, "Model");
@@ -30,8 +32,12 @@ void Renderer::renderScene(std::shared_ptr<Camera>& camera, std::shared_ptr<Scen
 void Renderer::renderModel(std::shared_ptr<Model>& model){
 
 	glUniformMatrix4fv(mModelUniform, 1, GL_FALSE, glm::value_ptr(model->mTransform));
-	
-	glBindTexture(GL_TEXTURE_2D, model->texture.getID());
+
+	glActiveTexture(GL_TEXTURE0);
+
+	glBindTexture(GL_TEXTURE_2D, model->texture);
+
+	glUniform1i(mSamplerUniform, GL_TEXTURE0);
 
 	model->mMesh->draw();
 
