@@ -30,6 +30,8 @@ void Renderer::renderScene(std::shared_ptr<Camera>& camera, std::shared_ptr<Scen
 void Renderer::renderModel(std::shared_ptr<Model>& model){
 
 	glUniformMatrix4fv(mModelUniform, 1, GL_FALSE, glm::value_ptr(model->mTransform));
+	
+	glBindTexture(GL_TEXTURE_2D, model->texture.getID());
 
 	model->mMesh->draw();
 

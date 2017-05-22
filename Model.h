@@ -2,6 +2,7 @@
 #define MODEL
 
 #include "Mesh.h"
+#include "Texture.h"
 
 class Model {
 public:
@@ -15,8 +16,13 @@ public:
 
     void recalculateTransform();
 
+	void setTexture(Texture texture);
+
     std::shared_ptr<Mesh> mMesh;
-    glm::mat4 mTransform;
+    
+	Texture texture;
+	
+	glm::mat4 mTransform;
 
     glm::vec3 mPosition;
     glm::vec3 mRotation;

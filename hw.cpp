@@ -27,11 +27,15 @@ int main(){
 	std::shared_ptr<Camera> camera = std::make_shared<Camera>(glm::vec3(4, 3, 3), glm::vec3(0, 0, 0));
 
 	// test models
-	std::shared_ptr<Model> testmodel = std::make_shared<Model>(MeshFactory::createCube(1, 4, 1));
+	std::shared_ptr<Model> testmodel = std::make_shared<Model>(MeshFactory::createCylinder(1, 1, 30));
 	std::shared_ptr<Model> testmodel2 = std::make_shared<Model>(MeshFactory::createCube(1, 1, 1));
 	std::shared_ptr<Model> testmodel3 = std::make_shared<Model>(MeshFactory::createCube(1, 1, 1));
 	testmodel2->setPosition(glm::vec3(0, -1.5, 1));
 	testmodel3->setPosition(glm::vec3(0, -1.5, -1));
+
+	Texture texture("text.jpg");
+
+	testmodel->setTexture(texture);
 
 	mainScene->addModel(testmodel);
 	mainScene->addModel(testmodel2);

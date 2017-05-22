@@ -6,6 +6,9 @@
 
 Model::Model(std::shared_ptr<Mesh> mesh) : mMesh(std::move(mesh)) {}
 
+void Model::setTexture(Texture text) {
+	this->texture = text; 
+}
 
 void Model::setTransform(glm::mat4 transform) {
     mTransform = transform;
