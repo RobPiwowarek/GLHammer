@@ -8,9 +8,13 @@ Renderer::Renderer() {
 
 	mSamplerUniform = glGetUniformLocation(mMainShaderProgram, "ourTexture");
 
+	mViewPosLoc = glGetUniformLocation(mMainShaderProgram, "viewPos");
+
 	mProjectionUniform = glGetUniformLocation(mMainShaderProgram, "Projection");
 	mViewUniform = glGetUniformLocation(mMainShaderProgram, "View");
-	mModelUniform = glGetUniformLocation(mMainShaderProgram, "Model");
+	mModelUniform = glGetUniformLocation(mMainShaderProgram, "Model"); 
+
+	
 }
 
 void Renderer::renderScene(std::shared_ptr<Camera>& camera, std::shared_ptr<Scene>& scene){
@@ -22,6 +26,12 @@ void Renderer::renderScene(std::shared_ptr<Camera>& camera, std::shared_ptr<Scen
 
 	glUniformMatrix4fv(mProjectionUniform, 1, GL_FALSE, glm::value_ptr(camera->mProjection));
 	glUniformMatrix4fv(mViewUniform, 1, GL_FALSE, glm::value_ptr(camera->mView));
+
+	for (auto&& light : scene->lights){
+		glUniform3f(light->lightPosLoc, light->position.x, light->position.y, light->position.z);
+		glUniform3f(light->lightColorLoc, light->color.x, light->color.y, light->color.z);
+		glUniform3f(mViewPosLoc, camera->mPostion.x, camera->mPostion.y, camera->mPostion.z);
+	}
 
 	for (auto&& model : scene->models) {
 		renderModel(model);
@@ -43,3 +53,6 @@ void Renderer::renderModel(std::shared_ptr<Model>& model){
 
 }
 
+GLuint Renderer::getShaderProgramID(){
+	return mMainShaderProgram;
+}

@@ -16,8 +16,12 @@ public:
 
 	Renderer();
 
+	GLuint getShaderProgramID();
+
 private:
     GLuint mMainShaderProgram;
+
+	GLuint mViewPosLoc;
 
 	GLint mSamplerUniform;
 

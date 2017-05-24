@@ -53,6 +53,28 @@ std::shared_ptr<Mesh> MeshFactory::createCube(GLfloat w, GLfloat h, GLfloat d) {
     return std::make_shared<Mesh>(std::move(vertices), std::move(indices));
 }
 
+std::shared_ptr<Mesh> MeshFactory::createCircle(GLfloat radius, GLuint segments) {
+	std::vector<Vertex> vertices;
+	std::vector<GLuint> indices;
+	float deltaAngle = glm::two_pi<float>() / segments;
+
+	for (GLuint i = 1; i < segments - 1; ++i) {
+		indices.emplace_back(0);
+		indices.emplace_back(i + 1);
+		indices.emplace_back(i);
+	}
+
+	for (GLuint i = 0; i < segments; ++i) {
+		float x = radius * std::cos(deltaAngle * i);
+		float y = radius * std::sin(deltaAngle * i);
+
+		vertices.emplace_back(glm::vec3(x, y, 0), glm::normalize(glm::vec3(0, 0, 1)), glm::vec2(x*0.5 / radius + 0.5, y*0.5 / radius + 0.5));
+	}
+
+	return std::make_shared<Mesh>(std::move(vertices), std::move(indices));
+}
+
+
 std::shared_ptr<Mesh> MeshFactory::createCylinder(GLfloat radius, GLfloat height, GLuint segments) {
 
 	std::vector<Vertex> vertices;
