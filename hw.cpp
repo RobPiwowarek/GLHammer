@@ -8,6 +8,9 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+
 #include "shaderManager.h"
 #include "MeshFactory.h"
 #include "Model.h"
@@ -16,6 +19,8 @@
 #include "Camera.h"
 #include "Texture.h"
 #include "Light.h"
+#include "ChildModel.h"
+#include "AnimationFrame.h"
 
 using namespace std;
 
@@ -26,10 +31,22 @@ GLFWwindow* init();
 GLfloat deltaTime = 0.0f;	// Time between current frame and last frame
 GLfloat lastFrame = 0.0f;  	// Time of last frame
 
+GLfloat activeTime = 0.0f;  // from the start of animation till the end
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void do_movement(std::shared_ptr<Camera> camera);
 
 std::shared_ptr<Camera> camera;
+std::shared_ptr<Light> pointLight;
+
+// Animations
+std::vector<AnimationFrame> hammerAnimations;
+
+glm::quat startingRotation = glm::angleAxis(2.0944f, glm::vec3(-0.57735f, -0.57735f, -0.57735f)); 
+//glm::angleAxis(-glm::half_pi<float>(), glm::normalize(glm::vec3(1, 0, 0))) *  glm::angleAxis(-glm::half_pi<float>(), glm::normalize(glm::vec3(0, 0, 1)));
+glm::quat leftCoinHammerRotation = glm::angleAxis(3.3078f, glm::vec3(-0.830181, 0.0556566, -0.554709));
+// leftCoinHammerRotation = glm::angleAxis(-glm::half_pi<float>() / 4, glm::normalize(glm::vec3(0, -1, 0))) * glm::angleAxis(-glm::half_pi<float>()-0.2f , glm::normalize(glm::vec3(0, 0, 1))) * startingRotation;
+glm::quat rightCoinHammerRotation = glm::angleAxis(3.25258f, glm::vec3(-0.553647 ,0.0831365, -0.828591));
 
 int main(){
 	GLFWwindow* window = init();
@@ -52,23 +69,39 @@ int main(){
 	std::shared_ptr<Model> leftCoinFace = std::make_shared<Model>(MeshFactory::createCircle(0.5, 32));
 	std::shared_ptr<Model> rightCoin = std::make_shared<Model>(MeshFactory::createCylinder(0.5, 0.2, 32));
 	std::shared_ptr<Model> rightCoinFace = std::make_shared<Model>(MeshFactory::createCircle(0.5, 32));
-	std::shared_ptr<Model> hammerHead = std::make_shared<Model>(MeshFactory::createCube(1, 3, 1));
+	std::shared_ptr<ChildModel> hammerHead = std::make_shared<ChildModel>(MeshFactory::createCube(1, 3, 1), hammerHandle);
 
-	leftPad->setPosition(glm::vec3(4, -2.5, 1));
-	leftCoin->setPosition(glm::vec3(4, -2, 1));
-	leftCoinFace->setPosition(glm::vec3(4, -1.88, 1));
-	rightCoin->setPosition(glm::vec3(4, -2, -1));
-	rightCoinFace->setPosition(glm::vec3(4, -1.88, -1));
-	rightPad->setPosition(glm::vec3(4, -2.5, -1));
+	// set parent/children
+	hammerHandle->addChild(hammerHead);
+
+	// Positions
+
+	leftPad->setPosition(glm::vec3(1.75, -2.5, 1));
+	leftCoin->setPosition(glm::vec3(1.75, -2, 1));
+	leftCoinFace->setPosition(glm::vec3(1.75, -1.88, 1));
+	rightCoin->setPosition(glm::vec3(1.75, -2, -1));
+	rightCoinFace->setPosition(glm::vec3(1.75, -1.88, -1));
+	rightPad->setPosition(glm::vec3(1.75, -2.5, -1));
 	ground->setPosition(glm::vec3(0, -3, 0));
-	hammerHead->setPosition(glm::vec3(1, 2, 0));
+	hammerHead->setPosition(glm::vec3(0, 0, 2));
 	
-	leftCoin->setRotation(glm::vec3(-glm::half_pi<float>(), 0, 0));
-	leftCoinFace->setRotation(glm::vec3(-glm::half_pi<float>(), 0, 0));
-	rightCoin->setRotation(glm::vec3(-glm::half_pi<float>(), 0, 0));
-	rightCoinFace->setRotation(glm::vec3(-glm::half_pi<float>(), 0, 0));
-	hammerHandle->setRotation(glm::vec3(-glm::half_pi<float>(), 0.5, 0));
-	hammerHead->setRotation(glm::vec3(0, 0, -2.05));
+	// Rotations
+
+	leftCoin->setRotation(glm::normalize(glm::vec3(-1, 0, 0)), glm::half_pi<float>());
+	leftCoinFace->setRotation(glm::normalize(glm::vec3(-1, 0, 0)), glm::half_pi<float>());
+	rightCoin->setRotation(glm::normalize(glm::vec3(-1, 0, 0)), glm::half_pi<float>());
+	rightCoinFace->setRotation(glm::normalize(glm::vec3(-1, 0, 0)), glm::half_pi<float>());
+	hammerHandle->setRotation(startingRotation);
+
+	// init animations
+
+	hammerAnimations.emplace_back(0.0f, startingRotation);
+	hammerAnimations.emplace_back(3.0f, leftCoinHammerRotation);
+	hammerAnimations.emplace_back(5.0f, startingRotation);
+	hammerAnimations.emplace_back(8.0f, rightCoinHammerRotation);
+	hammerAnimations.emplace_back(10.0f, startingRotation);
+
+	// Init textures
 
 	Texture floorTexture("floor.jpg");
 	Texture texture("text.jpg");
@@ -85,6 +118,7 @@ int main(){
 	rightCoinFace->setTexture(coinTexture.getID());
 	ground->setTexture(floorTexture.getID());
 
+	// Models to scene
 
 	mainScene->addModel(hammerHead);
 	mainScene->addModel(hammerHandle);
@@ -98,7 +132,7 @@ int main(){
 
 	// Lights
 
-	std::shared_ptr<Light> pointLight = std::make_shared<Light>(renderer.getShaderProgramID(), glm::vec3(8, 6, 10), glm::vec3(1, 1, 1));
+	pointLight = std::make_shared<Light>(renderer.getShaderProgramID(), glm::vec3(8, 6, 10), glm::vec3(1, 1, 1));
 
 	mainScene->addLight(pointLight);
 
@@ -111,6 +145,28 @@ int main(){
 		lastFrame = currentFrame;
 
 		glfwPollEvents();
+
+		// Animations
+
+		AnimationFrame f1, f2;
+		GLfloat param;
+
+		activeTime += deltaTime;
+		activeTime = (float)fmod(activeTime, 12);
+
+		std::vector<AnimationFrame> tempAnim = std::vector<AnimationFrame>(hammerAnimations);
+		for (auto iter = tempAnim.begin(); iter != tempAnim.end(); ++iter)
+		{
+			if (iter->time > activeTime) {
+				f2 = *iter;
+				f1 = *(iter - 1);
+				param = (activeTime - f1.time) / (f2.time - f1.time);
+				hammerHandle->setRotation(glm::mix(f1.rotation, f2.rotation, param));
+				break;
+			}
+		} 
+		
+		// Rendering
 
 		renderer.renderScene(camera, mainScene); 
 		
@@ -137,6 +193,11 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		camera->setDistance(camera->getDistance() + cameraSpeed);
 	if (key == GLFW_KEY_BACKSPACE)
 		camera->setDistance(camera->getDistance() - cameraSpeed);
+	if (key == GLFW_KEY_EQUAL)
+		pointLight->strength += cameraSpeed;
+	if (key == GLFW_KEY_MINUS)
+		pointLight->strength -= cameraSpeed;
+
 }
 
 

@@ -10,11 +10,18 @@ class Light{
 
 public:
 
-	GLfloat strength;
+	GLfloat strength = 1.0f;
+	GLfloat deltaStrength = 0.05f;
 
 	Light(GLuint shaderProgram, glm::vec3 pos, glm::vec3 color);
 	
 	void setPosition(glm::vec3 position);
+
+	void setStrength(GLfloat str) { this->strength = str; }
+
+	void incStrength() { this->strength += deltaStrength; }
+
+	void decrStrength() { this->strength -= deltaStrength; }
 
 private:
 	GLuint lightColorLoc;

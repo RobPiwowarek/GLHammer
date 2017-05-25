@@ -1,6 +1,3 @@
-#include <glm\gtc\type_ptr.hpp>
-#include <GL/glew.h>
-#include <glm/gtc/matrix_transform.hpp>
 
 #include "Model.h"
 
@@ -17,9 +14,18 @@ void Model::setTransform(glm::mat4 transform) {
 void Model::recalculateTransform() {
     glm::mat4 unit;
     auto translate = glm::translate(unit, mPosition);
-    auto rotate = glm::rotate(translate, mRotation.x, glm::vec3(1, 0, 0));
-    rotate = glm::rotate(rotate, mRotation.y, glm::vec3(0, 1, 0));
-    mTransform = glm::rotate(rotate, mRotation.z, glm::vec3(0, 0, 1));
+    
+	auto rotate = glm::toMat4(mRotation);
+
+	mTransform = translate * rotate;
+
+	for (auto && child : children){
+		child->recalculateTransform();
+	}
+}
+
+void Model::addChild(std::shared_ptr<Model> child){
+	children.push_back(child);
 }
 
 void Model::setPosition(glm::vec3 position) {
@@ -29,9 +35,27 @@ void Model::setPosition(glm::vec3 position) {
     recalculateTransform();
 }
 
-void Model::setRotation(glm::vec3 rotation) {
-    if (mRotation == rotation)
-        return;
-    mRotation = rotation;
+void Model::setRotation(glm::vec3 rotationAxis, GLfloat angle) {
+	if (angle == 0) return;
+
+	mRotation = glm::angleAxis(angle, rotationAxis);
+
     recalculateTransform();
 }
+
+void Model::setRotation(glm::quat rotationQuat) {
+	if (mRotation == rotationQuat) return;
+
+	mRotation = rotationQuat;
+
+	recalculateTransform();
+}
+
+void Model::joinRotation(glm::vec3 rotationAxis, GLfloat angle){
+	if (angle == 0) return;
+
+	mRotation = mRotation*glm::angleAxis(angle, rotationAxis);
+
+	recalculateTransform();
+}
+

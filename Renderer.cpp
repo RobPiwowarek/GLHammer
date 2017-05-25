@@ -29,7 +29,7 @@ void Renderer::renderScene(std::shared_ptr<Camera>& camera, std::shared_ptr<Scen
 
 	for (auto&& light : scene->lights){
 		glUniform3f(light->lightPosLoc, light->position.x, light->position.y, light->position.z);
-		glUniform3f(light->lightColorLoc, light->color.x, light->color.y, light->color.z);
+		glUniform3f(light->lightColorLoc, light->strength*light->color.x, light->strength*light->color.y, light->strength*light->color.z);
 		glUniform3f(mViewPosLoc, camera->mPostion.x, camera->mPostion.y, camera->mPostion.z);
 	}
 

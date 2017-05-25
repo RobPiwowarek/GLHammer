@@ -4,6 +4,15 @@
 #include "Mesh.h"
 #include "Texture.h"
 
+#include <list>
+
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+
+#include <glm\gtc\type_ptr.hpp>
+#include <GL/glew.h>
+#include <glm/gtc/matrix_transform.hpp>
+
 class Model {
 public:
     void setTransform(glm::mat4 transform);
@@ -12,11 +21,17 @@ public:
 
     void setPosition(glm::vec3 position);
 
-    void setRotation(glm::vec3 rotation);
+    void setRotation(glm::vec3 rotationAxis, GLfloat angle);
 
-    void recalculateTransform();
+	void setRotation(glm::quat rotationQuat);
+
+	void joinRotation(glm::vec3 rotationAxis, GLfloat angle);
+
+    virtual void recalculateTransform();
 
 	void setTexture(GLuint texture);
+
+	void addChild(std::shared_ptr<Model> child);
 
     std::shared_ptr<Mesh> mMesh;
     
@@ -25,7 +40,10 @@ public:
 	glm::mat4 mTransform;
 
     glm::vec3 mPosition;
-    glm::vec3 mRotation;
+    glm::quat mRotation;
+
+private:
+	std::list<std::shared_ptr<Model>> children;
 };
 
 
